@@ -35,6 +35,16 @@ public class UserAPI {
         return responseLogin;
 
     }
+    @Step("Create new user")
+    public static Response updateUser(User user, String token) {
+        Response responseUpdate = given()
+                .header("Authorization",token)
+                .contentType("application/json")
+                .body(user)
+                .when()
+                .patch(updateUserAPIPath);
+        return responseUpdate;
+    }
 
     @Step("Delete user")
     public static void deleteUser(User user, String token) {
