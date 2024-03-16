@@ -9,10 +9,7 @@ import org.junit.Before;
 import io.restassured.RestAssured;
 import org.junit.Test;
 
-import java.util.Locale;
-
-import static org.apache.http.HttpStatus.SC_OK;
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 
 // Данный класс тестирует эндпойнт "PATCH  /api/auth/user" (изменение данных пользователя).
@@ -26,7 +23,7 @@ public class TestChangeUserData {
     String token;
 
     @Before  // Задаем базовый URI и создаем экземпляр класса User
-    public void createCourierInit() {
+    public void init() {
         RestAssured.baseURI = Configuration.URL_STELLAR_BURGERS;
         user = new User();
     }
@@ -35,16 +32,8 @@ public class TestChangeUserData {
     @DisplayName("Authorized user's email can be changed")
     public void testCanChangeAuthorizedUserEmail() {
         String newEmail = "updatedEmail@yandex.ru";
-        Response responseCreate = UserAPI.createUser(user);
-        responseCreate.then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
+        UserAPI.createUser(user);
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
-        responseLogin.then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
         token = responseLogin.path("accessToken");
         user.setEmail(newEmail);
         Response responseUpdate = UserAPI.updateUser(user, token);
@@ -60,16 +49,8 @@ public class TestChangeUserData {
     @DisplayName("Authorized user's name can be changed")
     public void testCanChangeAuthorizedUserName() {
         String newName = "UpdatedName";
-        Response responseCreate = UserAPI.createUser(user);
-        responseCreate.then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
+        UserAPI.createUser(user);
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
-        responseLogin.then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
         token = responseLogin.path("accessToken");
         user.setName(newName);
         Response responseUpdate = UserAPI.updateUser(user, token);
@@ -88,16 +69,8 @@ public class TestChangeUserData {
 // не приходит новый пароль. Чтобы убедиться, что пароль поменялся, мы логинимся с новыми данными и убеждаемся, что
 // залогиниться получилось.
         String newPassword = "updatedPwd";
-        Response responseCreate = UserAPI.createUser(user);
-        responseCreate.then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
+        UserAPI.createUser(user);
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
-        responseLogin.then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
         token = responseLogin.path("accessToken");
         user.setPassword(newPassword);
         Response responseUpdate = UserAPI.updateUser(user, token);
@@ -118,12 +91,7 @@ public class TestChangeUserData {
     public void testCanNotChangeUnauthorizedUserEmail() {
         String emailKeeper = user.getEmail();
         String newEmail = "updatedEmail@yandex.ru";
-        Response responseCreate = UserAPI.createUser(user);
-        responseCreate.then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
-
+        UserAPI.createUser(user);
         token = "";
         user.setEmail(newEmail);
         Response responseUpdate = UserAPI.updateUser(user, token);

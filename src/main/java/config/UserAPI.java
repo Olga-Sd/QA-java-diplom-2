@@ -35,7 +35,7 @@ public class UserAPI {
         return responseLogin;
 
     }
-    @Step("Create new user")
+    @Step("Update user's data")
     public static Response updateUser(User user, String token) {
         Response responseUpdate = given()
                 .header("Authorization",token)

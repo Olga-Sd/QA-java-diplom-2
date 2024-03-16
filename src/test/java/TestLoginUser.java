@@ -24,7 +24,7 @@ public class TestLoginUser {
     String token;
 
     @Before  // Задаем базовый URI и создаем экземпляр класса User
-    public void createCourierInit() {
+    public void init() {
         RestAssured.baseURI = Configuration.URL_STELLAR_BURGERS;
         user = new User();
     }
@@ -32,10 +32,7 @@ public class TestLoginUser {
     @Test
     @DisplayName("An existing user can be logged in")
     public void testCanLoginExistingUser() {
-        UserAPI.createUser(user).then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
+        UserAPI.createUser(user);
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
         responseLogin.then().assertThat()
                 .statusCode(SC_OK)
@@ -47,11 +44,8 @@ public class TestLoginUser {
     @Test
     @DisplayName("User can not login with wrong Login(in this app email is Login)")
     public void testCanNotLoginWithWrongLogin() {
-        UserAPI.createUser(user).then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
         String emailKeeper = user.getEmail();
+        UserAPI.createUser(user);
         user.setEmail("wrongEmail@yandex.ru");
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
         responseLogin.then().assertThat()
@@ -67,11 +61,8 @@ public class TestLoginUser {
     @Test
     @DisplayName("User can not login with wrong Password")
     public void testCanNotLoginWithWrongPassword() {
-        UserAPI.createUser(user).then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("success", equalTo(true));
         String pwdKeeper = user.getPassword();
+        UserAPI.createUser(user);
         user.setPassword("wrongPwd");
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
         responseLogin.then().assertThat()
@@ -92,10 +83,8 @@ public class TestLoginUser {
             Response responseLogin = UserAPI.loginUserAndGetToken(user);
             if (responseLogin.path("success").equals(true)) {
                 token = responseLogin.path("accessToken");
-                //System.out.println(responseLogin.getBody().asString());
                 UserAPI.deleteUser(user, token);
             }
-
 
         } catch (NullPointerException e) {
         }

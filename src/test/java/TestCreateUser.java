@@ -25,7 +25,7 @@ public class TestCreateUser {
     String token;
 
     @Before  // Задаем базовый URI и создаем экземпляр класса User
-    public void createCourierInit() {
+    public void init() {
         RestAssured.baseURI = Configuration.URL_STELLAR_BURGERS;
         user = new User();
     }
@@ -93,7 +93,7 @@ public class TestCreateUser {
                 .body("success", equalTo(false))
                 .and()
                 .body("message", equalTo("Email, password and name are required fields"));
-        user.setPassword(nameKeeper);
+        user.setName(nameKeeper);
     }
 
     @After
@@ -104,14 +104,12 @@ public class TestCreateUser {
             Response responseLogin = UserAPI.loginUserAndGetToken(user);
             if (responseLogin.path("success").equals(true)) {
                 token = responseLogin.path("accessToken");
-                //System.out.println(responseLogin.getBody().asString());
                 UserAPI.deleteUser(user, token);
             }
 
-
         } catch (NullPointerException e) {
         }
-
     }
 
 }
+
