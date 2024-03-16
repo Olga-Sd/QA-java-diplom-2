@@ -22,4 +22,15 @@ public class OrderAPI {
                 .post(newOrderAPIPath);
         return responseCreateOrder;
     }
+
+    @Step("Get a specific user's orders")
+    public static Response getUserOrders(String token) {
+        //System.out.println(order.getIngredientsHashes());
+        Response responseGetUserOrders = given()
+                .header("Authorization",token)
+                .contentType("application/json")
+                .when()
+                .get(getUserOrdersAPIPath);
+        return responseGetUserOrders;
+    }
 }

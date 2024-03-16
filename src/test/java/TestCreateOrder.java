@@ -1,17 +1,18 @@
-import com.google.gson.Gson;
 import config.*;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.response.Response;
+
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 import io.restassured.RestAssured;
-import org.junit.Test;
+import io.restassured.response.Response;
 
 import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
+import com.google.gson.Gson;
 
 // Данный класс тестирует эндпойнт "POST  /api/orders" (создание заказа).
 // В рамках дипломного задания выполняются следующие проверки создания заказа:
@@ -46,7 +47,7 @@ public class TestCreateOrder {
         responseCreateOrder.then().assertThat()
                 .statusCode(SC_OK)
                 .and()
-                .body("name", equalTo(OrderTestData.order1Name));
+                .body("name", equalTo(OrderTestData.orderName));
     }
 
     @Test

@@ -9,6 +9,7 @@ import static io.restassured.RestAssured.given;
 public class UserAPI {
     public static final String newUserAPIPath = "/api/auth/register";
     public static final String loginUserAPIPath = "/api/auth/login";
+    public static final String logoutUserAPIPath = "/api/auth/logout";
     public static final String updateUserAPIPath = "/api/auth/user"; // + PATCH
     public static final String deleteUserAPIPath = "/api/auth/user"; // + DELETE
 
@@ -24,7 +25,7 @@ public class UserAPI {
         return responseCreate;
     }
 
-    @Step("Login user and get authToken")
+    @Step("Login user and get authToken in response")
     public static Response loginUserAndGetToken(User user) {
         Response responseLogin = given()
                 .header(UserData.CREATE_USER_REQUEST_HEADER)
@@ -44,6 +45,18 @@ public class UserAPI {
                 .when()
                 .patch(updateUserAPIPath);
         return responseUpdate;
+    }
+
+    @Step("Log out user")
+    public static Response logoutUser(User user, String token) {
+        Response responseLogout = given()
+                .header("Authorization",token)
+                .contentType("application/json")
+                .body(user)
+                .when()
+                .post(logoutUserAPIPath);
+        return responseLogout;
+
     }
 
     @Step("Delete user")
