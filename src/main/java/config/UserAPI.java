@@ -1,7 +1,6 @@
 package config;
 
 import io.qameta.allure.Step;
-import io.qameta.allure.Description;
 import io.restassured.response.Response;
 
 import static io.restassured.RestAssured.given;
@@ -17,7 +16,7 @@ public class UserAPI {
     @Step("Create new user")
     public static Response createUser(User user) {
         Response responseCreate = given()
-                .header(UserData.CREATE_USER_REQUEST_HEADER)
+                .header(UserData.REQUEST_HEADER)
                 .and()
                 .body(user)
                 .when()
@@ -28,14 +27,14 @@ public class UserAPI {
     @Step("Login user and get authToken in response")
     public static Response loginUserAndGetToken(User user) {
         Response responseLogin = given()
-                .header(UserData.CREATE_USER_REQUEST_HEADER)
+                .header(UserData.REQUEST_HEADER)
                 .and()
                 .body(user)
                 .when()
                 .post(loginUserAPIPath);
         return responseLogin;
-
     }
+
     @Step("Update user's data")
     public static Response updateUser(User user, String token) {
         Response responseUpdate = given()
@@ -56,7 +55,6 @@ public class UserAPI {
                 .when()
                 .post(logoutUserAPIPath);
         return responseLogout;
-
     }
 
     @Step("Delete user")
@@ -67,8 +65,5 @@ public class UserAPI {
                 .body(user)
                 .when()
                 .delete(deleteUserAPIPath);
-        //responseDelete.getBody().prettyPrint();
     }
-
-
 }

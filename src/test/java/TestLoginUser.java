@@ -85,10 +85,7 @@ public class TestLoginUser {
                 token = responseLogin.path("accessToken");
                 UserAPI.deleteUser(user, token);
             }
-
         } catch (NullPointerException e) {
         }
-
     }
-
 }

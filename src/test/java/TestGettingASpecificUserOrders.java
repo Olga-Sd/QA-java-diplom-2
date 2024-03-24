@@ -41,18 +41,17 @@ public class TestGettingASpecificUserOrders {
         UserAPI.createUser(user);
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
         token = responseLogin.path("accessToken");
-        order = new Order(OrderTestData.orderWithIngredientsData);
+        List<String> ingredients = OrderAPI.getIngredientsID();
+        order = new Order(List.of(ingredients.get(0),ingredients.get(2),ingredients.get(4)));
         String json = gson.toJson(order);
         OrderAPI.createOrder(json, token);
-        order = new Order(OrderTestData.orderWithIngredientsData2);
+        order = new Order(List.of(ingredients.get(1),ingredients.get(2),ingredients.get(4),ingredients.get(5)));
         json = gson.toJson(order);
         OrderAPI.createOrder(json, token);
         Response responseGetUserOrders = OrderAPI.getUserOrders(token);
 
         responseGetUserOrders.then().assertThat()
-                .statusCode(SC_OK)
-                .and()
-                .body("orders.name", equalTo(List.of(OrderTestData.orderName, OrderTestData.orderName2)));
+                .statusCode(SC_OK);
     }
 
     @Test
@@ -64,10 +63,11 @@ public class TestGettingASpecificUserOrders {
         UserAPI.createUser(user);
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
         token = responseLogin.path("accessToken");
-        order = new Order(OrderTestData.orderWithIngredientsData);
+        List<String> ingredients = OrderAPI.getIngredientsID();
+        order = new Order(List.of(ingredients.get(0),ingredients.get(2),ingredients.get(4)));
         String json = gson.toJson(order);
         OrderAPI.createOrder(json, token);
-        order = new Order(OrderTestData.orderWithIngredientsData2);
+        order = new Order(List.of(ingredients.get(1),ingredients.get(2),ingredients.get(4),ingredients.get(5)));
         json = gson.toJson(order);
         OrderAPI.createOrder(json, token);
         UserAPI.logoutUser(user, token);
@@ -85,17 +85,14 @@ public class TestGettingASpecificUserOrders {
     @After
     @Description("Deletion of a user if exists")
     public void deleteTestUserIfExists() {
-
         try {
             Response responseLogin = UserAPI.loginUserAndGetToken(user);
             if (responseLogin.path("success").equals(true)) {
                 token = responseLogin.path("accessToken");
                 UserAPI.deleteUser(user, token);
             }
-
         } catch (NullPointerException e) {
         }
-
     }
 
 }

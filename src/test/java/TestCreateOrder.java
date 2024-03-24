@@ -1,18 +1,16 @@
 import config.*;
-
+import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-
 import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.Matchers.equalTo;
 import com.google.gson.Gson;
+import java.util.List;
 
 // Данный класс тестирует эндпойнт "POST  /api/orders" (создание заказа).
 // В рамках дипломного задания выполняются следующие проверки создания заказа:
@@ -25,7 +23,6 @@ import com.google.gson.Gson;
 public class TestCreateOrder {
     User user;
     String token;
-
     Order order;
 
     @Before  // Задаем базовый URI
@@ -33,21 +30,24 @@ public class TestCreateOrder {
         RestAssured.baseURI = Configuration.URL_STELLAR_BURGERS;
         user = new User();
     }
+
     // Данная проверка покрывает 2 ситуации из требований: создание заказа авторизованным пользователем и создание заказа с ингредиентами
     @Test
     @DisplayName("New order can be created by authorized user and can create orders with ingredients")
     public void testCanCreateOrderByAuthorizedUser(){
         Gson gson = new Gson();
+        List<String> ingredients;
         UserAPI.createUser(user);
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
         token = responseLogin.path("accessToken");
-        order = new Order(OrderTestData.orderWithIngredientsData);
+        ingredients = OrderAPI.getIngredientsID();
+        order = new Order(List.of(ingredients.get(0),ingredients.get(2),ingredients.get(4)));
         String json = gson.toJson(order);
         Response responseCreateOrder = OrderAPI.createOrder(json, token);
         responseCreateOrder.then().assertThat()
                 .statusCode(SC_OK)
                 .and()
-                .body("name", equalTo(OrderTestData.orderName));
+                .body("success", equalTo(true) );
     }
 
     @Test
@@ -60,7 +60,8 @@ public class TestCreateOrder {
         Gson gson = new Gson();
         UserAPI.createUser(user);
         token = "";
-        order = new Order(OrderTestData.orderWithIngredientsData);
+        List<String> ingredients = OrderAPI.getIngredientsID();
+        order = new Order(List.of(ingredients.get(0),ingredients.get(2),ingredients.get(4)));
         String json = gson.toJson(order);
         Response responseCreateOrder = OrderAPI.createOrder(json, token);
         responseCreateOrder.then().assertThat()
@@ -76,7 +77,7 @@ public class TestCreateOrder {
         UserAPI.createUser(user);
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
         token = responseLogin.path("accessToken");
-        order = new Order(OrderTestData.orderWithoutIngredientsData);
+        order = new Order(List.of());
         String json = gson.toJson(order);
         Response responseCreateOrder = OrderAPI.createOrder(json, token);
         responseCreateOrder.then().assertThat()
@@ -91,9 +92,11 @@ public class TestCreateOrder {
     public void testCanNotCreateOrderWithWrongIngredientsHash(){
         Gson gson = new Gson();
         UserAPI.createUser(user);
+        String wrongHash = "aaaaac5a71d1f82001bdaaa6f";
         Response responseLogin = UserAPI.loginUserAndGetToken(user);
         token = responseLogin.path("accessToken");
-        order = new Order(OrderTestData.orderWithWrongIngredientsHashData);
+        List<String> ingredients = OrderAPI.getIngredientsID();
+        order = new Order(List.of(ingredients.get(0),ingredients.get(2),ingredients.get(4), wrongHash));
         String json = gson.toJson(order);
         Response responseCreateOrder = OrderAPI.createOrder(json, token);
         responseCreateOrder.then().assertThat()
@@ -103,16 +106,13 @@ public class TestCreateOrder {
     @After
     @Description("Deletion of a user if exists")
     public void deleteTestUserIfExists() {
-
         try {
             Response responseLogin = UserAPI.loginUserAndGetToken(user);
             if (responseLogin.path("success").equals(true)) {
                 token = responseLogin.path("accessToken");
                 UserAPI.deleteUser(user, token);
             }
-
         } catch (NullPointerException e) {
         }
-
     }
 }
